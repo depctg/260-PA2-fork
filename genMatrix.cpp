@@ -28,6 +28,8 @@ using namespace std;
 #define C(i,j) (c[(i)*n+(j)])
 
 void
+matMulHost(_DOUBLE_  *c, const _DOUBLE_  *a, const _DOUBLE_  *b, unsigned int m, unsigned int n);
+void
 reference_dgemm(unsigned int n, _DOUBLE_ Alpha, _DOUBLE_  *a, _DOUBLE_  *b, _DOUBLE_  *c);
 
 
@@ -116,25 +118,18 @@ void verify_ISeq( _DOUBLE_ *c, unsigned int m, unsigned int n){
 }
 
 // Verify against exact answer
-void verify( _DOUBLE_ *c, unsigned int m, unsigned int n, _DOUBLE_ epsilon, const char *mesg)
+void verify( _DOUBLE_ *c, _DOUBLE_ *a, _DOUBLE_ *b, unsigned int m, unsigned int n, _DOUBLE_ epsilon, const char *mesg)
 {
   _DOUBLE_ error = 0.0;
   int ierror = 0;
 
-  // Assumes m=n
-  _DOUBLE_ *fij = new _DOUBLE_[2*m];
-  assert(fij);
-  for (unsigned int i = 0; i < 2*m; i++){
-     fij[i] = 1/(_DOUBLE_) (i+1);
-  }
+  _DOUBLE_ *C_exact = new _DOUBLE_[m*n];
+  matMulHost(C_exact, a, b, m, n);
+
   for ( unsigned int i=0; i<m; i++ ) {
     for ( unsigned int j=0; j<n; j++ ) {
-        _DOUBLE_ C_exact =  0;
-        for (int k=n-1;k>=0; k--){
-            C_exact +=  fij[i+k]*fij[j+k];
-        }
 
-	_DOUBLE_ delta = fabs( C( i,j ) - C_exact);
+	_DOUBLE_ delta = fabs( C( i,j ) - C_exact[i*n+j]);
 	if ( delta > epsilon ) {
 	  ierror++;
 	  error += delta;
@@ -157,7 +152,7 @@ void verify( _DOUBLE_ *c, unsigned int m, unsigned int n, _DOUBLE_ epsilon, cons
       cout << "answers matched to within " << epsilon;
   }
   cout << endl << endl;
-  delete [] fij;
+  delete [] C_exact;
 }  
 // Verify against exact answer
 void verify_rand( _DOUBLE_ *a, _DOUBLE_ *b, _DOUBLE_ *c, unsigned int n)

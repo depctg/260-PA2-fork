@@ -29,7 +29,7 @@ void genMatrix( _DOUBLE_ *a, unsigned int m, unsigned int n);
 void genMatrix_bt( _DOUBLE_ *a, _DOUBLE_ *b, unsigned int n);
 void genMatrix_rand( _DOUBLE_ *a, _DOUBLE_ *b, unsigned int n);
 void genMatrix_ISeq( _DOUBLE_ *a, _DOUBLE_ *b, unsigned int n);
-void verify( _DOUBLE_ *c, unsigned int m, unsigned int n, _DOUBLE_ eps, const char *mesg);
+void verify( _DOUBLE_ *c, _DOUBLE_ *a, _DOUBLE_ *b, unsigned int m, unsigned int n, _DOUBLE_ epsilon, const char *mesg);
 void verify_bt( _DOUBLE_ *c, unsigned int n, const char *mesg);
 void verify( _DOUBLE_ *c_d, _DOUBLE_ *c_h,  unsigned int m, unsigned int n, _DOUBLE_ eps, const char *mesg);
 void verify_bt( _DOUBLE_ *c_d, _DOUBLE_ *c_h,  unsigned int n, const char *mesg);
@@ -178,7 +178,7 @@ main(int argc, char** argv) {
         else if (use_rand)
             cout << "Verfication of host result not supported for random matrices\n";
         else
-            verify( hostC,n,n, eps, "Host result");
+            verify( hostC,h_A,h_B,n,n, eps, "Host result");
 
         if (n <= 8){
             printf("\nC:\n");
@@ -299,7 +299,7 @@ main(int argc, char** argv) {
       else if (use_seq)
 	verify_ISeq( h_C, n, n);
       else	      
-	verify( h_C,n,n, eps,"Device result");
+	verify( h_C,h_A,h_B,n,n, eps,"Device result");
     }
     // But not for random matrices
     if (do_host)
